@@ -7,15 +7,19 @@ def main():
     tcp_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     icmp_sock = socket.socket(socket.AF_INET,socket.SOCK_RAW,socket.IPPROTO_ICMP)
 
-    tcp_client_add = ("127.0.0.1", 80)
-    icmp_server_add = ("127.0.0.1", 5353)
+    tcp_client_add = ("0.0.0.0", 9999)
+    icmp_server_add = ("0.0.0.0", 5353)
+    icmp = ICMPPacket(data=b"test")
+    icmp_sock.sendto(icmp.raw, icmp_server_add)
 
     tcp_packet_max = 65535
     icmp_packet_max = 65535
 
+    tcp_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     tcp_sock.bind(tcp_client_add)
 
     # accept a connection from the tcp client
+    tcp_sock.listen(10)
     conn, addr = tcp_sock.accept()
     print("Connected to: ", addr)
 

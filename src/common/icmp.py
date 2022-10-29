@@ -19,16 +19,17 @@ ERROR_DESCR = {
 
 class ICMPPacket:
     def __init__(self,
-        icmp_type = ICMP_ECHO_REQUEST,
-        icmp_code = 0,
-        icmp_chks = 0,
-        data      = '' ,
+        icmp_type: int = ICMP_ECHO_REQUEST,
+        icmp_code: int = 0,
+        icmp_chks: int = 0,
+        data: bytes    = ''  ,
         ):
 
         self.icmp_type = icmp_type
         self.icmp_code = icmp_code
         self.icmp_chks = icmp_chks
-        self.data      = bytes(data, encoding="utf-8")
+        #self.data      = bytes(data, encoding="utf-8")
+        self.data      = data
         self.raw = None
         self.create_icmp_field()
 
@@ -40,7 +41,7 @@ class ICMPPacket:
             )
 
         # calculate checksum
-        self.icmp_chks = self.chksum(self.raw+self.data)
+        self.icmp_chks = self.checksum(self.raw+self.data)
 
         self.raw = struct.pack(ICMP_STRUCTURE_FMT,
             self.icmp_type,
@@ -50,22 +51,34 @@ class ICMPPacket:
 
         return 
 
-    def chksum(self, msg):
-        s = 0       # Binary Sum
-        msg = str(msg)
-        # loop taking 2 characters at a time
-        for i in range(0, len(msg), 2):
+    def checksum(self, source):
+        """
+        I'm not too confident that this is right but testing seems
+        to suggest that it gives the same answers as in_cksum in ping.c
+        """
+        source_string = source.decode("utf-8")
+        sum = 0
+        countTo = (len(source_string)/2)*2
+        count = 0
+        while count<countTo:
+            thisVal = ord(source_string[count + 1])*256 + ord(source_string[count])
+            sum = sum + thisVal
+            sum = sum & 0xffffffff # Necessary?
+            count = count + 2
 
-            a = ord(msg[i]) 
-            b = ord(msg[i+1])
-            s = s + (a+(b << 8))
-            
-        
-        # One's Complement
-        s = s + (s >> 16)
-        s = ~s & 0xffff
+        if countTo<len(source_string):
+            sum = sum + ord(source_string[len(source_string) - 1])
+            sum = sum & 0xffffffff # Necessary?
 
-        return s
+        sum = (sum >> 16)  +  (sum & 0xffff)
+        sum = sum + (sum >> 16)
+        answer = ~sum
+        answer = answer & 0xffff
+
+        # Swap bytes. Bugger me if I know why.
+        answer = answer >> 8 | (answer << 8 & 0xff00)
+
+        return answer
 
 
 # ICMP HEADER Extraction

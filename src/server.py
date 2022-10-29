@@ -16,7 +16,7 @@ def main():
     while True:
         # Receive data from the icmp client
         data, addr = icmp_sock.recvfrom(icmp_packet_max)
-        
+        print (data)
         # Print the received packet hex
         icmp_len = struct.calcsize(ICMP_STRUCTURE_FMT)
         icmp_header = ext_icmp_header(data[IP_PACKET_SIZE:(IP_PACKET_SIZE+icmp_len)])
