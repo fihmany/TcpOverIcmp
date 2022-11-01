@@ -1,4 +1,4 @@
-from common.icmp import ICMP_ECHO_REPLAY, ICMP_ECHO_REQUEST, ICMP_HEADER_SIZE, IP_PACKET_SIZE, ICMPPacket, parse_icmp_packet
+from common.icmp import ICMP_ECHO_REPLY, ICMP_ECHO_REQUEST, ICMP_HEADER_SIZE, IP_PACKET_SIZE, ICMPPacket, parse_icmp_packet
 import socket
 
 def main():
@@ -37,18 +37,19 @@ def main():
         while data == None:
             data, addr = icmp_sock.recvfrom(icmp_packet_max)
             data = handle_icmp(data)
-        print("Response from icmp server: ", data)
+        print("Response from icmp server: ", data.data)
 
         # Send response to tcp client
-        conn.send(data)
+        conn.send(data.data)
         print ("loop")
-        break
+        
 
-def handle_icmp(data: bytes) -> bytes:
+def handle_icmp(data: bytes) -> ICMPPacket:
     packet = parse_icmp_packet(data)
-    if (packet.icmp_type != ICMP_ECHO_REPLAY):
+    if (packet.icmp_type != ICMP_ECHO_REPLY):
+        print("received echo request! ignoring")
         return None
-    return data
+    return packet
 
 if __name__ == "__main__":
     main()
