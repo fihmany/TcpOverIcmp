@@ -14,6 +14,7 @@ def main():
     icmp_packet_max = 65535
 
     while True:
+        print ("waiting for icmp packet")
         # Receive data from the icmp client
         data, addr = icmp_sock.recvfrom(icmp_packet_max)
         print (data)
@@ -42,8 +43,7 @@ def main():
         icmp_packet = ICMPPacket(icmp_type=ICMP_ECHO_REPLY, data=tcp_resposnse)
         icmp_sock.sendto(icmp_packet.raw, icmp_client_add)
 
-
-
+        # create tcp client
 
 if __name__ == "__main__":
     main()
