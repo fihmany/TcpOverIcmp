@@ -1,15 +1,16 @@
 import socket
 import struct
-from common.icmp import ICMPPacket, ext_icmp_header, IP_PACKET_SIZE, ICMP_HEADER_SIZE, ICMP_STRUCTURE_FMT
+from common.icmp import ICMPPacket, parse_icmp_packet, IP_PACKET_SIZE, ICMP_HEADER_SIZE, ICMP_STRUCTURE_FMT
 
 def main():
     print("Hello Server")
 
-    target_addr = "https://raw.githubusercontent.com/fihmany/TcpOverIcmp/main/README.md"
+    target_addr = "172.217.22.78"
     target_addr_tuple = (target_addr, 80)
     icmp_client_add = ("127.0.0.1", 5353)
 
     icmp_sock = socket.socket(socket.AF_INET,socket.SOCK_RAW,socket.IPPROTO_ICMP)
+    icmp_sock.bind(("0.0.0.0", 9999))
 
     icmp_packet_max = 65535
 
@@ -18,21 +19,19 @@ def main():
         data, addr = icmp_sock.recvfrom(icmp_packet_max)
         print (data)
         # Print the received packet hex
-        icmp_len = struct.calcsize(ICMP_STRUCTURE_FMT)
-        icmp_header = ext_icmp_header(data[IP_PACKET_SIZE:(IP_PACKET_SIZE+icmp_len)])
-        icmp_payload = data[(IP_PACKET_SIZE+icmp_len):]
+        icmp_packet = parse_icmp_packet(data)
         
         print("Received Hex: ", data.hex())
         print("Received Data Len: ", len(data))
-        print("Request Header", icmp_header)
-        print("Request Payload: ", icmp_payload)
+        #print("Request Header", icmp_packet.raw)
+        print("Request Payload: ", icmp_packet.data)
 
         # Access the target address and send the received icmp payload to it
         tcp_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         tcp_sock.connect(target_addr_tuple)
 
         # send the data to it
-        tcp_sock.send(icmp_payload)
+        tcp_sock.send(icmp_packet.data)
         tcp_resposnse = tcp_sock.recv(icmp_packet_max)
         
         # Format data as icmp packet and send it back to the icmp client

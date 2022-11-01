@@ -2,11 +2,12 @@
 import struct
 import socket
 
-ICMP_STRUCTURE_FMT = 'BBH'
+ICMP_STRUCTURE_FMT = '!BBH'
 IP_PACK = "BBHHHBBH4s4s"
 IP_PACKET_SIZE = 20
 ICMP_HEADER_SIZE = 4
-ICMP_ECHO_REQUEST = 8 # Seems to be the same on Solaris.
+ICMP_ECHO_REQUEST = 8
+ICMP_ECHO_REPLAY = 0
 
 ICMP_CODE = socket.getprotobyname('icmp')
 ERROR_DESCR = {
@@ -56,18 +57,17 @@ class ICMPPacket:
         I'm not too confident that this is right but testing seems
         to suggest that it gives the same answers as in_cksum in ping.c
         """
-        source_string = source.decode("utf-8")
         sum = 0
-        countTo = (len(source_string)/2)*2
+        countTo = (len(source)/2)*2
         count = 0
-        while count<countTo:
-            thisVal = ord(source_string[count + 1])*256 + ord(source_string[count])
+        while count<countTo -1:
+            thisVal = source[count + 1]*256 + source[count]
             sum = sum + thisVal
             sum = sum & 0xffffffff # Necessary?
             count = count + 2
 
-        if countTo<len(source_string):
-            sum = sum + ord(source_string[len(source_string) - 1])
+        if countTo<len(source):
+            sum = sum + source[len(source) - 1]
             sum = sum & 0xffffffff # Necessary?
 
         sum = (sum >> 16)  +  (sum & 0xffff)
@@ -82,11 +82,13 @@ class ICMPPacket:
 
 
 # ICMP HEADER Extraction
-def ext_icmp_header(data):
-    icmph=struct.unpack(ICMP_STRUCTURE_FMT, data)
-    data={
-    'type'  :   icmph[0],
+def parse_icmp_packet(data) -> ICMPPacket:
+    icmp_header = data[IP_PACKET_SIZE:IP_PACKET_SIZE + ICMP_HEADER_SIZE]
+    icmph=struct.unpack(ICMP_STRUCTURE_FMT, icmp_header)
+    header={
+    "type"  :   icmph[0],
     "code"  :   icmph[1],
     "checksum": icmph[2],
     }
-    return data
+    return ICMPPacket(header['type'], header['code'], header['checksum'], data[IP_PACKET_SIZE + ICMP_HEADER_SIZE:])
+

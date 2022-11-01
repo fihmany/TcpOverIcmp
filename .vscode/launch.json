@@ -11,6 +11,15 @@
             "program": "${workspaceFolder}/src/client.py",
             "console": "integratedTerminal",
             "justMyCode": true
+        },
+        {
+            "name": "Python: run server",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/server.py",
+            "console": "integratedTerminal",
+            "justMyCode": true
         }
+
     ]
 }
