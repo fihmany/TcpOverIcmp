@@ -1,8 +1,10 @@
 from common.icmp import ICMP_ECHO_REPLY, ICMP_ECHO_REQUEST, ICMP_HEADER_SIZE, IP_PACKET_SIZE, ICMPPacket, parse_icmp_packet
+from common.data_types import IcmpOverTcpPacket
 import socket
 
 def main():
     print("Hello Client")
+    target_address = "www.example.com"
 
     tcp_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     icmp_sock = socket.socket(socket.AF_INET,socket.SOCK_RAW,socket.IPPROTO_ICMP)
@@ -24,10 +26,15 @@ def main():
     while True:
         # Receive data from tcp client
         data = conn.recv(tcp_packet_max)
-        print("Received from tcp client: ", data.decode("utf-8"))
+        # print("Received from tcp client: ", data.decode("utf-8"))
 
-        # Format data as icmp packet and send to icmp server
-        icmp = ICMPPacket(icmp_type=ICMP_ECHO_REQUEST, data=data)
+        # Forward the icmp packet to the icmp server, but as an icmp over tcp packet
+        icmp_over_tcp = IcmpOverTcpPacket(target_ip=target_address, data=data)
+
+        # Format data as icmp packet
+        icmp = ICMPPacket(icmp_type=ICMP_ECHO_REQUEST, data=icmp_over_tcp.raw)
+
+        print("Sending to icmp server: ", icmp_over_tcp.target_ip)
         icmp_sock.sendto(icmp.raw, icmp_server_add)
         data = None
 
@@ -50,6 +57,6 @@ def handle_icmp(data: bytes) -> ICMPPacket:
         print("received echo request! ignoring")
         return None
     return packet
-
+ 
 if __name__ == "__main__":
     main()
