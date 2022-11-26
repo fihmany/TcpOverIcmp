@@ -2,15 +2,23 @@ from common.icmp import ICMP_ECHO_REPLY, ICMP_ECHO_REQUEST, ICMP_HEADER_SIZE, IP
 from common.data_types import IcmpOverTcpPacket
 import socket
 
-def main():
+def main(source_ip = "127.0.0.1", target_ip = "www.example.com", target_port = "80"):
+    # Start up the gui on a seperate thread
+    # TODO: pass the target ip and port to the server 
     print("Hello Client")
-    target_address = "www.example.com"
+
+    # if no configuration queue is present, use the default values
+    if (configuration_queue is not None):
+        configuration = configuration_queue.get()
+        source_ip = configuration["source_ip"]
+        target_ip = configuration["target_ip"]
+        target_port = configuration["target_port"]
 
     tcp_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     icmp_sock = socket.socket(socket.AF_INET,socket.SOCK_RAW,socket.IPPROTO_ICMP)
 
     tcp_client_add = ("0.0.0.0", 9999)
-    icmp_server_add = ("127.0.0.1", 5353)
+    icmp_server_add = (source_ip, 5353)
 
     tcp_packet_max = 65535
     icmp_packet_max = 65535
@@ -29,7 +37,7 @@ def main():
         # print("Received from tcp client: ", data.decode("utf-8"))
 
         # Forward the icmp packet to the icmp server, but as an icmp over tcp packet
-        icmp_over_tcp = IcmpOverTcpPacket(target_ip=target_address, data=data)
+        icmp_over_tcp = IcmpOverTcpPacket(target_ip=target_ip, data=data)
 
         # Format data as icmp packet
         icmp = ICMPPacket(icmp_type=ICMP_ECHO_REQUEST, data=icmp_over_tcp.raw)

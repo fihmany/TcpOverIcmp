@@ -1,5 +1,8 @@
 import customtkinter
 import pathlib
+import threading
+import client
+from queue import Queue
 
 # Declare string variables
 title = "TCP over ICMP"
@@ -17,8 +20,8 @@ customtkinter.set_default_color_theme("dark-blue")  # Themes: blue (default), da
 app = customtkinter.CTk()
 app.geometry(page_size)
 app.title(title)
-app.iconbitmap(f"{pathlib.Path(__file__).parent.parent.resolve()}\\icon.ico")
-
+# TODO: fix the icon
+# app.iconbitmap(r"{pathlib.Path(__file__).parent.parent.resolve()}\\icon.ico")
 
 # Declare text variables
 button_text = customtkinter.StringVar(value="START")
@@ -26,11 +29,21 @@ server_ip_textfield_text = customtkinter.StringVar(value="127.0.0.1")
 target_ip_textfield_text = customtkinter.StringVar(value="www.example.com")
 target_port_textfield_text = customtkinter.StringVar(value="80")
 
+# define a function which calls the client main in a seprate thread
+def start_client():
+    client.main(server_ip_textfield_text.get(),
+                target_ip_textfield_text.get(),
+                target_port_textfield_text.get())
+
+client_logic_thread = threading.Thread(target=start_client)
+
 # Declare widget actions
 def button_function():
     if button_text.get() == "START":
+        client_logic_thread.start()
         button_text.set("STOP")
     else:
+        # TODO: stop the client
         button_text.set("START")
 
 # Declare widgets
