@@ -1,9 +1,9 @@
 import struct
 
+QUIT_COMMAND = "quit"
 ICMP_OVER_TCP_STRUCTURE_FMT = '!16s'
 
 class IcmpOverTcpPacket:
-
     def __init__(self,
         target_ip: str = '',
         data: bytes = b'',
