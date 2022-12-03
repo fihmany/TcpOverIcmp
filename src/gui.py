@@ -1,7 +1,6 @@
 import customtkinter
-import pathlib
 import threading
-import client
+from client import ProxyClient
 from queue import Queue
 from common.data_types import QUIT_COMMAND
 
@@ -36,12 +35,10 @@ out_queue = Queue()
 
 # define a function which calls the client main in a seprate thread
 def start_client():
-    client.main(server_ip_textfield_text.get(),
-                target_ip_textfield_text.get(),
-                target_port_textfield_text.get(),
-                # pass the in queue as the out queue and vice versa
-                out_queue,
-                in_queue)
+    client = ProxyClient(server_ip_textfield_text.get(), target_ip_textfield_text.get(), target_port_textfield_text.get(),
+    # pass the in queue as the out queue and vice versa
+    in_queue, out_queue)
+    client.client_serve()
 
 client_logic_thread = threading.Thread(target=start_client)
 
