@@ -4,7 +4,7 @@ from queue import Queue
 
 from common.icmp import ICMP_ECHO_REPLY, ICMP_ECHO_REQUEST, ICMPPacket, parse_icmp_packet
 from common.data_types import IcmpOverTcpPacket, QUIT_COMMAND
-from common.utils import ICMP_PACKET_MAX, TCP_PACKET_MAX
+from common.utils import ICMP_PACKET_MAX, STOP_COMMAND, TCP_PACKET_MAX
 
 class ProxyClient:
     def __init__(self, source_ip: str = "127.0.0.1", target_ip:
@@ -38,7 +38,7 @@ class ProxyClient:
         print("target ip: " + self.target_ip)
         print("target port: " + self.target_port)
 
-        while True:
+        while self.in_session:
             # accept a connection from the tcp client
             self.tcp_server_sock.listen(10)
 
@@ -46,21 +46,20 @@ class ProxyClient:
                 self.current_tcp_session, addr = self.tcp_server_sock.accept()
             except timeout:
                 print("connection timeout")
-                ProxyClient.has_received_quit_command(self.in_queue)
+                self.has_received_quit_command(self.in_queue)
                 return
 
             print("Connected to: ", addr)
             # Receive data from tcp client
             self.sockets = [self.current_tcp_session, self.icmp_sock]
-            self.in_session = True
-            while self.in_session:
+            while self.current_tcp_session is not None:
                 ready_to_read, _, _ = select.select(self.sockets, [], [], 1)
-                while self.in_session:
-                    for sock in ready_to_read:
-                        if sock.protocol == IPPROTO_ICMP:
-                            self.handle_icmp_packet(sock)
-                        else:
-                            self.handle_tcp_packet(sock)
+                for sock in ready_to_read:
+                    if sock.protocol == IPPROTO_ICMP:
+                        self.handle_icmp_packet(sock)
+                    else:
+                        if (self.handle_tcp_packet(sock) == STOP_COMMAND):
+                            self.current_tcp_session = None
 
             print("loop")
 
@@ -83,8 +82,8 @@ class ProxyClient:
         print("checking the in queue")
         # if there is no data, check if there is data in the queue
         if (len(data) == 0):
-            ProxyClient.has_received_quit_command(self.in_queue)
-            return
+            self.has_received_quit_command(self.in_queue)
+            return STOP_COMMAND
 
         # print("Received from tcp client: ", data.decode("utf-8"))
 
@@ -110,14 +109,14 @@ class ProxyClient:
             return None
         return packet
 
-    @staticmethod
-    def has_received_quit_command(in_queue: Queue) -> bool:
+    def has_received_quit_command(self, in_queue: Queue) -> bool:
         # if the quit command is in the queue, quit
         if not in_queue.empty():
             print("received a command")
             data = in_queue.get()
             if data == QUIT_COMMAND:
                 print("received the quit command")
+                self.in_session = False
                 return True
         return False
 
