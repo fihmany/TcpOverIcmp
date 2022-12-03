@@ -4,13 +4,15 @@ from common.icmp import ICMPPacket, parse_icmp_packet, ICMP_ECHO_REQUEST, ICMP_E
 from common.data_types import IcmpOverTcpPacket
 from common.utils import ICMP_PACKET_MAX, TCP_PACKET_MAX
 
+
 class ProxyServer:
 
     def __init__(self):
         # target_addr = "www.example.com"
         # target_addr_tuple = (target_addr, 80)
         self.icmp_client_addr = ("127.0.0.1", 5353)
-        self.icmp_sock = socket.socket(socket.AF_INET,socket.SOCK_RAW,socket.IPPROTO_ICMP)
+        self.icmp_sock = socket.socket(
+            socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_ICMP)
         self.icmp_sock.bind(self.icmp_client_addr)
         self.sockets = [self.icmp_sock]
 
@@ -24,8 +26,7 @@ class ProxyServer:
                     self.handle_icmp_packet(sock)
                 else:
                     self.handle_tcp_packet(sock)
-            
-            
+
     def handle_tcp_packet(self, sock: socket.socket):
         tcp_resposnse = sock.recv(TCP_PACKET_MAX)
 
@@ -33,7 +34,7 @@ class ProxyServer:
         # Format data as icmp packet and send it back to the icmp client
         icmp_packet = ICMPPacket(icmp_type=ICMP_ECHO_REPLY, data=tcp_resposnse)
         self.icmp_sock.sendto(icmp_packet.raw, self.icmp_client_addr)
-        if (sock in self.sockets):
+        if sock in self.sockets:
             sock.close()
             self.sockets.remove(sock)
 
@@ -55,7 +56,8 @@ class ProxyServer:
         target_addr = icmp_over_tcp.target_ip.rstrip('\x00')
 
         # Format the data to the correct host and port
-        data_to_send = icmp_over_tcp.data.replace(b"localhost:9999", "{}:80".format(target_addr).encode("utf-8"))
+        data_to_send = icmp_over_tcp.data.replace(
+            b"localhost:9999", "{}:80".format(target_addr).encode("utf-8"))
 
         print("Received ip icmp client: ", target_addr)
 
@@ -67,7 +69,7 @@ class ProxyServer:
         # Access the target address and send the received icmp payload to it
         tcp_sock = sock.socket(sock.AF_INET, sock.SOCK_STREAM)
 
-        #TODO RAZ: mabye pass the port of connection as well ?
+        # TODO RAZ: mabye pass the port of connection as well ?
         tcp_sock.connect((target_addr, 80))
 
         # send the data to it
