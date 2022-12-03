@@ -3,6 +3,7 @@ import pathlib
 import threading
 import client
 from queue import Queue
+from common.data_types import QUIT_COMMAND
 
 # Declare string variables
 title = "TCP over ICMP"
@@ -29,11 +30,18 @@ server_ip_textfield_text = customtkinter.StringVar(value="127.0.0.1")
 target_ip_textfield_text = customtkinter.StringVar(value="www.example.com")
 target_port_textfield_text = customtkinter.StringVar(value="80")
 
+# define queues to communicate between the client thread and the gui thread
+in_queue = Queue()
+out_queue = Queue()
+
 # define a function which calls the client main in a seprate thread
 def start_client():
     client.main(server_ip_textfield_text.get(),
                 target_ip_textfield_text.get(),
-                target_port_textfield_text.get())
+                target_port_textfield_text.get(),
+                # pass the in queue as the out queue and vice versa
+                out_queue,
+                in_queue)
 
 client_logic_thread = threading.Thread(target=start_client)
 
@@ -76,5 +84,20 @@ for i, (label, textfield) in enumerate(settings_widgets):
 
 button.place(relx=0.5, rely=base_settings_y + diff_settings_items_y * len(settings_widgets), anchor=customtkinter.CENTER)
 
+# Add a listener to the x button on the gui
+def on_closing():
+    app.destroy()
+    # join the client thread to the main thread
+    print("Sending the quit command")
+    out_queue.put(QUIT_COMMAND)
+
+    print("joining thread")
+    client_logic_thread.join()
+
+
+app.protocol("WM_DELETE_WINDOW", on_closing)
+
 # Run the window
 app.mainloop()
+
+print("after mainloop")
