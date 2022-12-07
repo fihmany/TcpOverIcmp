@@ -1,4 +1,4 @@
-from select import select
+import select
 from socket import socket, AF_INET, SOCK_RAW, IPPROTO_ICMP, SOCK_STREAM, SOL_SOCKET, SO_REUSEADDR, timeout
 from queue import Queue
 
@@ -37,6 +37,7 @@ class ProxyClient:
         print("source ip: " + self.source_ip)
         print("target ip: " + self.target_ip)
         print("target port: " + self.target_port)
+        self.in_session = True
 
         while self.in_session:
             # accept a connection from the tcp client
@@ -47,15 +48,18 @@ class ProxyClient:
             except timeout:
                 print("connection timeout")
                 self.has_received_quit_command(self.in_queue)
-                return
+                continue
 
             print("Connected to: ", addr)
             # Receive data from tcp client
             self.sockets = [self.current_tcp_session, self.icmp_sock]
             while self.current_tcp_session is not None:
-                ready_to_read, _, _ = select.select(self.sockets, [], [], 1)
+                # use select to fill the ready_to_read list with sockets that have data to read
+
+                ready_to_read, _, _ = select.select(
+                    self.sockets, [], [], 0.2)                
                 for sock in ready_to_read:
-                    if sock.protocol == IPPROTO_ICMP:
+                    if sock == self.icmp_sock:
                         self.handle_icmp_packet(sock)
                     else:
                         if (self.handle_tcp_packet(sock) == STOP_COMMAND):
@@ -77,8 +81,8 @@ class ProxyClient:
         self.current_tcp_session.send(data.data)
 
     def handle_tcp_packet(self, sock: socket):
-        data = sock.recv(TCP_PACKET_MAX, timeout=1)
-
+        data = sock.recv(TCP_PACKET_MAX)
+    
         print("checking the in queue")
         # if there is no data, check if there is data in the queue
         if (len(data) == 0):

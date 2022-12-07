@@ -22,7 +22,7 @@ class ProxyServer:
         while True:
             ready_to_read, _, _ = select.select(self.sockets, [], [])
             for sock in ready_to_read:
-                if sock.protocol == socket.IPPROTO_ICMP:
+                if sock == self.icmp_sock:
                     self.handle_icmp_packet(sock)
                 else:
                     self.handle_tcp_packet(sock)
@@ -67,7 +67,7 @@ class ProxyServer:
         #print("Request Payload: ", icmp_packet.data)
 
         # Access the target address and send the received icmp payload to it
-        tcp_sock = sock.socket(sock.AF_INET, sock.SOCK_STREAM)
+        tcp_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
         # TODO RAZ: mabye pass the port of connection as well ?
         tcp_sock.connect((target_addr, 80))
