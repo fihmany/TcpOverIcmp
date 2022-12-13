@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>Python</ID>
+  <OriginalElement>#C:/Users/razgi/Projects/tcp_over_icmp/src/server.py</OriginalElement>
+  <nodes>
+    <node x="122.0" y="-358.0">src.common.icmp.ICMPPacket</node>
+    <node x="-270.0" y="-108.0">src.client.ProxyClient</node>
+    <node x="-264.0" y="-358.0">src.common.data_types.IcmpOverTcpPacket</node>
+    <node x="-529.5" y="-307.0">src.gui.ClientGUI</node>
+    <node x="128.5" y="-50.0">src.server.ProxyServer</node>
+  </nodes>
+  <notes />
+  <edges />
+  <settings layout="Hierarchic" zoom="1.0" showDependencies="false" x="25.5" y="-4.5" />
+  <SelectedNodes />
+  <Categories>
+    <Category>Fields</Category>
+    <Category>Inner Classes</Category>
+    <Category>Methods</Category>
+  </Categories>
+</Diagram>
+
