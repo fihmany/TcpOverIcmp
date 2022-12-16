@@ -29,7 +29,6 @@ class ICMPPacket:
         self.icmp_type = icmp_type
         self.icmp_code = icmp_code
         self.icmp_chks = icmp_chks
-        #self.data      = bytes(data, encoding="utf-8")
         self.data      = data
         self.raw = None
         self.create_icmp_field()
