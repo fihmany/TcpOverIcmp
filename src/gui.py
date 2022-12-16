@@ -24,9 +24,6 @@ class ClientGUI:
         self.app.geometry(self.page_size)
         self.app.title(self.title)
 
-        # TODO: fix the icon to work on WSL, disabled for now
-        # self.app.iconbitmap(r"{pathlib.Path(__file__).parent.parent.resolve()}\\icon.ico")
-
         # Declare text variables
         self.button_text = customtkinter.StringVar(value="START")
         self.server_ip_textfield_text = customtkinter.StringVar(value="127.0.0.1")
@@ -41,7 +38,7 @@ class ClientGUI:
 
         # Declare widgets
         self.title_label = customtkinter.CTkLabel(self.app, text=self.title, font=("Arial", 35))
-        self.subtitle_label = customtkinter.CTkLabel(self.app, text=self.subtitle, font=("Arial", 25))
+        self.subtitle_label = customtkinter.CTkLabel(self.app, text=self.subtitle, font=("Arial", 25))  
 
         self.server_ip_label = customtkinter.CTkLabel(self.app, text=self.server_ip_text, font=("Arial", 12))
         self.server_ip_textfield = customtkinter.CTkEntry(self.app, textvariable=self.server_ip_textfield_text, font=("Arial", 12))

@@ -8,8 +8,6 @@ from common.utils import ICMP_PACKET_MAX, TCP_PACKET_MAX
 class ProxyServer:
 
     def __init__(self):
-        # target_addr = "www.example.com"
-        # target_addr_tuple = (target_addr, 80)
         self.icmp_client_addr = ("127.0.0.1", 5353)
         self.icmp_sock = socket.socket(
             socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_ICMP)
@@ -56,20 +54,15 @@ class ProxyServer:
         target_addr = icmp_over_tcp.target_ip.rstrip('\x00')
 
         # Format the data to the correct host and port
+        # in http requests
         data_to_send = icmp_over_tcp.data.replace(
             b"localhost:9999", "{}:80".format(target_addr).encode("utf-8"))
 
         print("Received ip icmp client: ", target_addr)
 
-        #print("Received Hex: ", data.hex())
-        #print("Received Data Len: ", len(data))
-        #print("Request Header", icmp_packet.raw)
-        #print("Request Payload: ", icmp_packet.data)
-
         # Access the target address and send the received icmp payload to it
         tcp_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-        # TODO RAZ: mabye pass the port of connection as well ?
         tcp_sock.connect((target_addr, 80))
 
         # send the data to it
