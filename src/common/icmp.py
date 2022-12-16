@@ -29,7 +29,6 @@ class ICMPPacket:
         self.icmp_type = icmp_type
         self.icmp_code = icmp_code
         self.icmp_chks = icmp_chks
-        #self.data      = bytes(data, encoding="utf-8")
         self.data      = data
         self.raw = None
         self.create_icmp_field()
@@ -53,29 +52,24 @@ class ICMPPacket:
         return 
 
     def checksum(self, source):
-        """
-        I'm not too confident that this is right but testing seems
-        to suggest that it gives the same answers as in_cksum in ping.c
-        """
         sum = 0
         countTo = (len(source)/2)*2
         count = 0
         while count<countTo -1:
             thisVal = source[count + 1]*256 + source[count]
             sum = sum + thisVal
-            sum = sum & 0xffffffff # Necessary?
+            sum = sum & 0xffffffff
             count = count + 2
 
         if countTo<len(source):
             sum = sum + source[len(source) - 1]
-            sum = sum & 0xffffffff # Necessary?
+            sum = sum & 0xffffffff 
 
         sum = (sum >> 16)  +  (sum & 0xffff)
         sum = sum + (sum >> 16)
         answer = ~sum
         answer = answer & 0xffff
 
-        # Swap bytes. Bugger me if I know why.
         answer = answer >> 8 | (answer << 8 & 0xff00)
 
         return answer

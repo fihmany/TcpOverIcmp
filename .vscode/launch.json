@@ -5,11 +5,21 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python: run client with gui",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/gui.py",
+            "console": "integratedTerminal",
+            "sudo": true,
+            "justMyCode": true
+        },
+        {
             "name": "Python: run client",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/src/client.py",
             "console": "integratedTerminal",
+            "sudo": true,
             "justMyCode": true
         },
         {
@@ -18,6 +28,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/src/server.py",
             "console": "integratedTerminal",
+            "sudo": true,
             "justMyCode": true
         }
 
