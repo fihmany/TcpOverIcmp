@@ -40,17 +40,17 @@ class ClientGUI:
         self.client_logic_thread = threading.Thread(target=self.start_client)
 
         # Declare widgets
-        self.title_label = customtkinter.CTkLabel(self.app, text=self.title, text_font=("Arial", 35))
-        self.subtitle_label = customtkinter.CTkLabel(self.app, text=self.subtitle, text_font=("Arial", 25))
+        self.title_label = customtkinter.CTkLabel(self.app, text=self.title, font=("Arial", 35))
+        self.subtitle_label = customtkinter.CTkLabel(self.app, text=self.subtitle, font=("Arial", 25))
 
-        self.server_ip_label = customtkinter.CTkLabel(self.app, text=self.server_ip_text, text_font=("Arial", 12))
-        self.server_ip_textfield = customtkinter.CTkEntry(self.app, textvariable=self.server_ip_textfield_text, text_font=("Arial", 12))
+        self.server_ip_label = customtkinter.CTkLabel(self.app, text=self.server_ip_text, font=("Arial", 12))
+        self.server_ip_textfield = customtkinter.CTkEntry(self.app, textvariable=self.server_ip_textfield_text, font=("Arial", 12))
 
-        self.target_ip_label = customtkinter.CTkLabel(self.app, text=self.target_ip_text, text_font=("Arial", 12))
-        self.target_ip_textfield = customtkinter.CTkEntry(self.app, textvariable=self.target_ip_textfield_text, text_font=("Arial", 12))
+        self.target_ip_label = customtkinter.CTkLabel(self.app, text=self.target_ip_text, font=("Arial", 12))
+        self.target_ip_textfield = customtkinter.CTkEntry(self.app, textvariable=self.target_ip_textfield_text, font=("Arial", 12))
 
-        self.target_port_label = customtkinter.CTkLabel(self.app, text=self.target_port_text, text_font=("Arial", 12))
-        self.target_port_textfield = customtkinter.CTkEntry(self.app, textvariable=self.target_port_textfield_text, text_font=("Arial", 12))
+        self.target_port_label = customtkinter.CTkLabel(self.app, text=self.target_port_text, font=("Arial", 12))
+        self.target_port_textfield = customtkinter.CTkEntry(self.app, textvariable=self.target_port_textfield_text, font=("Arial", 12))
 
         self.button = customtkinter.CTkButton(master=self.app, textvariable=self.button_text, command=self.button_function)
 

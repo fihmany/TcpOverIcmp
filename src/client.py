@@ -4,7 +4,7 @@ from queue import Queue
 
 from common.icmp import ICMP_ECHO_REPLY, ICMP_ECHO_REQUEST, ICMPPacket, parse_icmp_packet
 from common.data_types import IcmpOverTcpPacket, QUIT_COMMAND
-from common.utils import ICMP_PACKET_MAX, STOP_COMMAND, TCP_PACKET_MAX
+from common.utils import ICMP_PACKET_MAX, TCP_PACKET_MAX, STOP_COMMAND
 
 class ProxyClient:
     def __init__(self, source_ip: str = "127.0.0.1", target_ip:
@@ -30,7 +30,6 @@ class ProxyClient:
 
     def client_serve(self):
         # Start up the gui on a seperate thread
-        # TODO: pass the target ip and port to the server
         print("Hello Client")
 
         # print up the received parameters for debugging
@@ -46,7 +45,7 @@ class ProxyClient:
             try:
                 self.current_tcp_session, addr = self.tcp_server_sock.accept()
             except timeout:
-                print("connection timeout")
+                #print("connection timeout")
                 self.has_received_quit_command(self.in_queue)
                 continue
 
